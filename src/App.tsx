@@ -1,5 +1,9 @@
 export function App() {
-  return <>dsdasdasdasdasdasdasdsad</>
+  return (
+    <main>
+      teste
+    </main>
+  )
 }
 
 export default App
