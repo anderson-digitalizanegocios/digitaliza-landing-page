@@ -1,7 +1,7 @@
 export function App() {
   return (
     <main>
-      teste
+      teste2
     </main>
   )
 }
