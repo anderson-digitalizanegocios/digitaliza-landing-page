@@ -1,514 +1,773 @@
+import * as React from "react"
+
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Select } from "@/components/ui/select"
+import { Textarea } from "@/components/ui/textarea"
+import {
   ArrowRight,
-  Award,
-  Barcode,
   Calendar,
   Check,
-  Eye,
-  Gift,
   Globe,
-  GraduationCap,
-  Layers,
   Link,
   MessageSquare,
-  Package,
-  Palette,
   RefreshCw,
-  Settings,
-  TrendingUp,
 } from "lucide-react"
 
-export default function App() {
-  const scrollToId = (id: string) => {
-    const el = document.getElementById(id)
-    if (el) el.scrollIntoView({ behavior: "smooth" })
-  }
+type Segmento =
+  | ""
+  | "Moda Feminina"
+  | "Moda Masculina"
+  | "Moda Infantil"
+  | "Jeanswear"
+  | "Moda Praia/Fitness"
+  | "Outros"
 
-  const openWhatsApp = (message: string) => {
-    const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`
-    window.open(url, "_blank", "noopener,noreferrer")
+type Migracao = "" | "Sim, quero migrar" | "Não, será o primeiro site"
+
+function formatTelefoneBR(value: string) {
+  const digits = value.replace(/\D/g, "").slice(0, 11)
+  if (digits.length === 0) return ""
+  if (digits.length < 3) return `(${digits}`
+  if (digits.length < 7) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`
+  if (digits.length < 11) {
+    return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`
+  }
+  return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`
+}
+
+function openWhatsApp(message: string) {
+  const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`
+  window.open(url, "_blank", "noopener,noreferrer")
+}
+
+export default function App() {
+  const [responsavel, setResponsavel] = React.useState("")
+  const [marca, setMarca] = React.useState("")
+  const [whatsapp, setWhatsapp] = React.useState("")
+  const [instagram, setInstagram] = React.useState("")
+  const [segmento, setSegmento] = React.useState<Segmento>("")
+  const [migracao, setMigracao] = React.useState<Migracao>("")
+  const [observacoes, setObservacoes] = React.useState("")
+  const [formError, setFormError] = React.useState<string | null>(null)
+  const [formSuccess, setFormSuccess] = React.useState(false)
+
+  const submit = (event: React.FormEvent) => {
+    event.preventDefault()
+    setFormSuccess(false)
+
+    if (!responsavel || !marca || !whatsapp || !segmento || !migracao) {
+      setFormError("Preencha os campos obrigatórios para enviar.")
+      return
+    }
+
+    setFormError(null)
+
+    const text = [
+      "Solicitação de demonstração — Site B2B/Atacado em 7 dias",
+      "",
+      `Nome do responsável: ${responsavel}`,
+      `Marca/Confecção: ${marca}`,
+      `WhatsApp/Telefone: ${whatsapp}`,
+      `Instagram: ${instagram || "-"}`,
+      `Segmento: ${segmento}`,
+      `Já possui sistema ou site atual?: ${migracao}`,
+      `Observações: ${observacoes || "-"}`,
+    ].join("\n")
+
+    openWhatsApp(text)
+    setFormSuccess(true)
   }
 
   return (
-    <div className="min-h-screen bg-[#FDFBF7] text-[#1C1C1C] font-sans antialiased">
-      {/* Header / Navbar */}
-      <header className="sticky top-0 z-50 bg-[#FDFBF7]/90 backdrop-blur-md border-b border-[#E5E0D8]">
-        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="text-2xl font-serif font-bold tracking-tight text-[#111827]">
-              Facilzap<span className="text-[#059669]">.</span>
-            </span>
-          </div>
-          <nav className="hidden md:flex gap-8 text-sm font-medium text-[#4B5563]">
-            <a href="#pilares" className="hover:text-[#111827] transition-colors">Diferenciais</a>
-            <a href="#mapa" className="hover:text-[#111827] transition-colors">O Mapa</a>
-            <a href="#setup" className="hover:text-[#111827] transition-colors">Setup Inicial</a>
-            <a href="#planos" className="hover:text-[#111827] transition-colors">Planos</a>
-            <a href="#motor" className="hover:text-[#111827] transition-colors">Motor de Lucro</a>
+    <div className="min-h-screen">
+      <header className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur">
+        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
+          <a href="#" className="flex items-center gap-2">
+            <div className="grid size-9 place-items-center rounded-xl bg-primary text-primary-foreground shadow-sm">
+              <Globe className="size-4" />
+            </div>
+            <div className="leading-tight">
+              <div className="font-heading text-base font-bold tracking-tight">
+                Representante Fácilzap
+              </div>
+              <div className="text-xs text-muted-foreground">Nordeste</div>
+            </div>
+          </a>
+
+          <nav className="hidden items-center gap-6 text-sm text-muted-foreground md:flex">
+            <a className="hover:text-foreground" href="#parceria">
+              Parceria
+            </a>
+            <a className="hover:text-foreground" href="#beneficios">
+              Benefícios
+            </a>
+            <a className="hover:text-foreground" href="#prova-social">
+              Prova social
+            </a>
+            <a className="hover:text-foreground" href="#como-funciona">
+              Como funciona
+            </a>
           </nav>
+
           <Button
-            className="h-auto rounded-full bg-[#111827] px-5 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-[#059669]"
-            onClick={() => openWhatsApp("Olá! Quero iniciar o setup da Facilzap.")}
+            className="h-auto rounded-full px-4 py-2"
+            onClick={() => {
+              document.getElementById("lead-form")?.scrollIntoView({
+                behavior: "smooth",
+              })
+            }}
           >
-            Iniciar Setup
+            Quero Meu Site em 7 Dias <ArrowRight className="ml-1 size-4" />
           </Button>
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="relative py-24 px-6 border-b border-[#E5E0D8] overflow-hidden">
-        <div className="max-w-5xl mx-auto text-center space-y-6">
-          <span className="inline-block px-4 py-1.5 rounded-full bg-[#059669]/10 text-[#059669] text-xs font-semibold uppercase tracking-widest">
-            Praticidade e Tecnologia
-          </span>
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-serif font-light leading-tight tracking-tight text-[#111827]">
-            Facilzap: Sua Loja Digital <span className="italic font-normal text-[#059669]">Completa</span>
-          </h1>
-          <p className="text-lg md:text-xl text-[#4B5563] max-w-2xl mx-auto font-light leading-relaxed">
-            Transforme seu negócio com uma plataforma robusta, layout profissional e acompanhamento especializado.
-          </p>
-          <div className="pt-6 flex flex-col sm:flex-row justify-center gap-4">
-            <Button
-              className="h-auto rounded-full bg-[#059669] px-8 py-4 text-base font-medium text-white shadow-lg hover:bg-[#047857] hover:shadow-xl"
-              onClick={() => scrollToId("planos")}
-            >
-              Escolher Plano e Iniciar
-            </Button>
-            <Button
-              variant="outline"
-              className="h-auto rounded-full border-[#111827] px-8 py-4 text-base font-medium text-[#111827] hover:bg-[#111827] hover:text-white"
-              onClick={() => scrollToId("mapa")}
-            >
-              Conhecer o Processo
-            </Button>
-          </div>
-        </div>
-      </section>
-
-      {/* Pilares / Filosofia (Grid Estilo Editorial) */}
-      <section id="pilares" className="py-20 px-6 max-w-7xl mx-auto">
-        <div className="grid md:grid-cols-3 gap-8">
-          <div className="p-8 rounded-2xl bg-white border border-[#E5E0D8] shadow-sm hover:border-[#059669] transition-all">
-            <div className="w-12 h-12 rounded-xl bg-[#F3F4F6] flex items-center justify-center text-[#059669] mb-6">
-              <Eye className="w-6 h-6" />
-            </div>
-            <h3 className="text-2xl font-serif font-medium mb-3 text-[#111827]">Clareza</h3>
-            <p className="text-[#6B7280] leading-relaxed">
-              Uma visão transparente e estruturada da sua operação de vendas.
-            </p>
+      <main>
+        <section className="relative overflow-hidden py-16 md:py-24">
+          <div className="pointer-events-none absolute inset-0 -z-10">
+            <div className="absolute -left-24 top-10 size-72 rounded-full bg-primary/10 blur-3xl" />
+            <div className="absolute -right-24 bottom-10 size-72 rounded-full bg-primary/10 blur-3xl" />
           </div>
 
-          <div className="p-8 rounded-2xl bg-white border border-[#E5E0D8] shadow-sm hover:border-[#059669] transition-all">
-            <div className="w-12 h-12 rounded-xl bg-[#F3F4F6] flex items-center justify-center text-[#059669] mb-6">
-              <Layers className="w-6 h-6" />
-            </div>
-            <h3 className="text-2xl font-serif font-medium mb-3 text-[#111827]">Organização</h3>
-            <p className="text-[#6B7280] leading-relaxed">
-              Gestão de catálogo e processos logísticos unificados.
-            </p>
-          </div>
-
-          <div className="p-8 rounded-2xl bg-white border border-[#E5E0D8] shadow-sm hover:border-[#059669] transition-all">
-            <div className="w-12 h-12 rounded-xl bg-[#F3F4F6] flex items-center justify-center text-[#059669] mb-6">
-              <TrendingUp className="w-6 h-6" />
-            </div>
-            <h3 className="text-2xl font-serif font-medium mb-3 text-[#111827]">Resultados</h3>
-            <p className="text-[#6B7280] leading-relaxed">
-              Foco absoluto em conversão e crescimento escalável.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* O Mapa da Parceria (Fases) */}
-      <section id="mapa" className="py-20 px-6 bg-[#F3EFEA]">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center max-w-2xl mx-auto mb-16">
-            <h2 className="text-3xl md:text-5xl font-serif font-light text-[#111827] mb-4">
-              O Mapa da Parceria
-            </h2>
-            <p className="text-[#6B7280]">
-              Uma jornada clara em 3 etapas para impulsionar a sua operação.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8 relative">
-            {/* Fase 1 */}
-            <div className="bg-white p-8 rounded-2xl border border-[#E5E0D8] shadow-md relative">
-              <span className="text-xs font-bold uppercase tracking-wider text-[#10B981] bg-[#10B981]/10 px-3 py-1 rounded-full">
-                Fase 1
-              </span>
-              <h3 className="text-2xl font-serif font-medium text-[#111827] mt-4 mb-1">
-                A Fundação
-              </h3>
-              <p className="text-xs text-[#059669] font-semibold mb-4">Setup Inicial</p>
-              <p className="text-[#6B7280] text-sm leading-relaxed">
-                Construindo sua casa digital com tecnologia robusta e zero fricção técnica.
-              </p>
-            </div>
-
-            {/* Fase 2 */}
-            <div className="bg-white p-8 rounded-2xl border border-[#E5E0D8] shadow-md relative">
-              <span className="text-xs font-bold uppercase tracking-wider text-[#3B82F6] bg-[#3B82F6]/10 px-3 py-1 rounded-full">
-                Fase 2
-              </span>
-              <h3 className="text-2xl font-serif font-medium text-[#111827] mt-4 mb-1">
-                A Operação
-              </h3>
-              <p className="text-xs text-[#2563EB] font-semibold mb-4">Manutenção Mensal</p>
-              <p className="text-[#6B7280] text-sm leading-relaxed">
-                Garantindo o fluxo de vendas diário com estabilidade e suporte contínuo.
-              </p>
-            </div>
-
-            {/* Fase 3 */}
-            <div className="bg-white p-8 rounded-2xl border border-[#E5E0D8] shadow-md relative">
-              <span className="text-xs font-bold uppercase tracking-wider text-[#059669] bg-[#059669]/10 px-3 py-1 rounded-full">
-                Fase 3
-              </span>
-              <h3 className="text-2xl font-serif font-medium text-[#111827] mt-4 mb-1">
-                A Aceleração
-              </h3>
-              <p className="text-xs text-[#059669] font-semibold mb-4">Alta Performance</p>
-              <p className="text-[#6B7280] text-sm leading-relaxed">
-                Estratégias agressivas de crescimento, retenção e campanhas exclusivas.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Setup Inicial (Investimento Único) */}
-      <section id="setup" className="py-20 px-6 max-w-7xl mx-auto">
-        <div className="bg-[#111827] text-white rounded-3xl p-8 md:p-14 shadow-xl">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 border-b border-gray-800 pb-10 mb-10">
-            <div>
-              <span className="text-[#059669] font-medium text-sm tracking-wider uppercase">Investimento Único</span>
-              <h2 className="text-3xl md:text-5xl font-serif font-light mt-2">
-                Setup Inicial
-              </h2>
-              <p className="text-gray-400 mt-2">
-                O seu "pé direito" no mundo digital. Cuidamos da tecnologia, você foca em vender.
-              </p>
-            </div>
-            <div className="text-left md:text-right">
-              <span className="text-4xl md:text-5xl font-serif font-bold text-[#059669]">
-                R$ 3.600,00
-              </span>
-            </div>
-          </div>
-
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="bg-gray-800/50 p-5 rounded-xl border border-gray-700/50">
-              <Settings className="w-6 h-6 text-[#059669] mb-3" />
-              <h4 className="font-medium text-white mb-1">Configuração Técnica</h4>
-              <p className="text-xs text-gray-400">Criação de links e ativação completa do sistema.</p>
-            </div>
-
-            <div className="bg-gray-800/50 p-5 rounded-xl border border-gray-700/50">
-              <Package className="w-6 h-6 text-[#059669] mb-3" />
-              <h4 className="font-medium text-white mb-1">Gestão de Catálogo</h4>
-              <p className="text-xs text-gray-400">Cadastro de produtos sem limite de quantidade.</p>
-            </div>
-
-            <div className="bg-gray-800/50 p-5 rounded-xl border border-gray-700/50">
-              <Palette className="w-6 h-6 text-[#059669] mb-3" />
-              <h4 className="font-medium text-white mb-1">Design Exclusivo</h4>
-              <p className="text-xs text-gray-400">Banners personalizados para Desktop e Mobile.</p>
-            </div>
-
-            <div className="bg-gray-800/50 p-5 rounded-xl border border-gray-700/50">
-              <Link className="w-6 h-6 text-[#059669] mb-3" />
-              <h4 className="font-medium text-white mb-1">Integrações Totais</h4>
-              <p className="text-xs text-gray-400">Pagamentos (Pix, Cartão), Envios e Domínios.</p>
-            </div>
-
-            <div className="bg-gray-800/50 p-5 rounded-xl border border-gray-700/50">
-              <Globe className="w-6 h-6 text-[#059669] mb-3" />
-              <h4 className="font-medium text-white mb-1">Domínio Próprio</h4>
-              <p className="text-xs text-gray-400">Configuração de endereço personalizado (ex: sua-marca.com.br).</p>
-            </div>
-
-            <div className="bg-gray-800/50 p-5 rounded-xl border border-gray-700/50">
-              <Barcode className="w-6 h-6 text-[#059669] mb-3" />
-              <h4 className="font-medium text-white mb-1">Automação Logística</h4>
-              <p className="text-xs text-gray-400">Configuração de impressoras de códigos de barras (sem taxa adicional).</p>
-            </div>
-
-            <div className="bg-gray-800/50 p-5 rounded-xl border border-gray-700/50">
-              <GraduationCap className="w-6 h-6 text-[#059669] mb-3" />
-              <h4 className="font-medium text-white mb-1">Treinamento</h4>
-              <p className="text-xs text-gray-400">Sessão completa (Presencial, Produtos, pedidos, vendas).</p>
-            </div>
-
-            <div className="bg-gray-800/50 p-5 rounded-xl border border-gray-700/50">
-              <MessageSquare className="w-6 h-6 text-[#059669] mb-3" />
-              <h4 className="font-medium text-white mb-1">Acompanhamento VIP</h4>
-              <p className="text-xs text-gray-400">Grupo exclusivo no WhatsApp por 60 dias.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Planos de Manutenção */}
-      <section id="planos" className="py-20 px-6 max-w-7xl mx-auto">
-        <div className="text-center max-w-2xl mx-auto mb-16">
-          <h2 className="text-3xl md:text-5xl font-serif font-light text-[#111827] mb-4">
-            Planos de Manutenção Mensal
-          </h2>
-          <p className="text-[#6B7280]">
-            Escolha a estrutura ideal para o seu momento atual e escale conforme sua necessidade.
-          </p>
-        </div>
-
-        {/* Planos Standard */}
-        <div className="grid md:grid-cols-3 gap-8 mb-16">
-          {/* Bronze */}
-          <div className="bg-white p-8 rounded-2xl border border-[#E5E0D8] shadow-sm flex flex-col justify-between">
-            <div>
-              <h3 className="text-xl font-serif font-medium text-[#111827]">Bronze</h3>
-              <div className="mt-4 mb-6">
-                <span className="text-4xl font-bold font-serif text-[#111827]">R$ 50,00</span>
-                <span className="text-gray-500 text-sm">/mês</span>
-              </div>
-              <ul className="space-y-3 text-sm text-[#4B5563]">
-                <li className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-[#059669]" /> Até 10 NFs/mês
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-[#059669]" /> Até 300 Produtos
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-[#059669]" /> Pedidos Ilimitados
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-[#059669]" /> Até 3 Administradores
-                </li>
-              </ul>
-            </div>
-            <Button
-              variant="outline"
-              className="mt-8 h-auto w-full rounded-full border-[#111827] py-3 font-medium hover:bg-[#111827] hover:text-white"
-              onClick={() => openWhatsApp("Olá! Quero assinar o plano Bronze da Facilzap.")}
-            >
-              Assinar Bronze
-            </Button>
-          </div>
-
-          {/* Prata */}
-          <div className="bg-white p-8 rounded-2xl border border-[#059669] shadow-md flex flex-col justify-between relative">
-            <div>
-              <h3 className="text-xl font-serif font-medium text-[#111827]">Prata</h3>
-              <div className="mt-4 mb-6">
-                <span className="text-4xl font-bold font-serif text-[#111827]">R$ 100,00</span>
-                <span className="text-gray-500 text-sm">/mês</span>
-              </div>
-              <ul className="space-y-3 text-sm text-[#4B5563]">
-                <li className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-[#059669]" /> Até 30 NFs/mês
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-[#059669]" /> Até 450 Produtos
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-[#059669]" /> Pedidos Ilimitados
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-[#059669]" /> Até 4 Administradores
-                </li>
-              </ul>
-            </div>
-            <Button
-              className="mt-8 h-auto w-full rounded-full bg-[#059669] py-3 font-medium text-white hover:bg-[#047857]"
-              onClick={() => openWhatsApp("Olá! Quero assinar o plano Prata da Facilzap.")}
-            >
-              Assinar Prata
-            </Button>
-          </div>
-
-          {/* Ouro */}
-          <div className="bg-white p-8 rounded-2xl border border-[#E5E0D8] shadow-sm flex flex-col justify-between">
-            <div>
-              <h3 className="text-xl font-serif font-medium text-[#111827]">Ouro</h3>
-              <div className="mt-4 mb-6">
-                <span className="text-4xl font-bold font-serif text-[#111827]">R$ 150,00</span>
-                <span className="text-gray-500 text-sm">/mês</span>
-              </div>
-              <ul className="space-y-3 text-sm text-[#4B5563]">
-                <li className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-[#059669]" /> Notas Fiscais Ilimitadas
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-[#059669]" /> Produtos Ilimitados
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-[#059669]" /> Pedidos Ilimitados
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-[#059669]" /> Administradores Ilimitados
-                </li>
-              </ul>
-            </div>
-            <Button
-              variant="outline"
-              className="mt-8 h-auto w-full rounded-full border-[#111827] py-3 font-medium hover:bg-[#111827] hover:text-white"
-              onClick={() => openWhatsApp("Olá! Quero assinar o plano Ouro da Facilzap.")}
-            >
-              Assinar Ouro
-            </Button>
-          </div>
-        </div>
-
-        {/* Planos Digitaliza Negócios (Alta Performance) */}
-        <div className="bg-[#F3EFEA] p-8 md:p-12 rounded-3xl">
-          <div className="text-center max-w-2xl mx-auto mb-10">
-            <span className="text-xs font-bold uppercase tracking-wider text-[#059669] bg-[#059669]/10 px-3 py-1 rounded-full">
-              Recomendado
-            </span>
-            <h3 className="text-2xl md:text-3xl font-serif font-light text-[#111827] mt-3">
-              Planos Digitaliza Negócios (Alta Performance)
-            </h3>
-            <p className="text-sm text-[#6B7280] mt-2">
-              Para empresas que exigem suporte prioritário e estratégias de crescimento acelerado.
-              <br />
-              <span className="font-semibold text-gray-700">Todos incluem:</span> Ilimitado para Notas/Produtos/Pedidos, Suporte WhatsApp e Grupo Exclusivo Ilimitado.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-6">
-            {/* Digitaliza Negócios */}
-            <div className="bg-white p-6 rounded-xl border border-[#E5E0D8]">
-              <h4 className="font-serif font-bold text-[#111827]">Digitaliza Negócios</h4>
-              <p className="text-2xl font-bold font-serif text-[#059669] my-2">
-                R$ 231,00 <span className="text-xs text-gray-500 font-normal">/mês</span>
-              </p>
-              <ul className="text-xs space-y-2 text-[#4B5563] mt-4">
-                <li>• Layout Padrão</li>
-                <li>• Sem Campanhas</li>
-                <li>• Sem Treinamentos</li>
-              </ul>
-            </div>
-
-            {/* Digitaliza Ouro */}
-            <div className="bg-white p-6 rounded-xl border border-[#059669] shadow-md relative">
-              <h4 className="font-serif font-bold text-[#111827]">Digitaliza Ouro</h4>
-              <p className="text-2xl font-bold font-serif text-[#059669] my-2">
-                R$ 499,00 <span className="text-xs text-gray-500 font-normal">/mês</span>
-              </p>
-              <ul className="text-xs space-y-2 text-[#4B5563] mt-4">
-                <li>• Layout Exclusivo</li>
-                <li>• Sem Campanhas</li>
-                <li>• Sem Treinamentos</li>
-              </ul>
-            </div>
-
-            {/* Digitaliza Premium */}
-            <div className="bg-white p-6 rounded-xl border border-[#111827]">
-              <h4 className="font-serif font-bold text-[#111827]">Digitaliza Premium</h4>
-              <p className="text-2xl font-bold font-serif text-[#059669] my-2">
-                R$ 799,00 <span className="text-xs text-gray-500 font-normal">/mês</span>
-              </p>
-              <ul className="text-xs space-y-2 text-[#4B5563] mt-4">
-                <li>• Layout Exclusivo</li>
-                <li>• Estratégias e Campanhas Inclusas</li>
-                <li>• Treinamentos Ilimitados</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* O Motor de Lucro */}
-      <section id="motor" className="py-20 px-6 max-w-7xl mx-auto border-t border-[#E5E0D8]">
-        <div className="grid md:grid-cols-2 gap-12 items-center">
-          <div>
-            <span className="text-xs font-bold uppercase tracking-wider text-[#059669]">Diferencial Premium</span>
-            <h2 className="text-3xl md:text-5xl font-serif font-light text-[#111827] mt-2 mb-6">
-              O Motor de Lucro
-            </h2>
-            <p className="text-[#6B7280] leading-relaxed mb-8">
-              Muito além da plataforma: uma agência de resultados integrada à sua loja para maximizar o seu lucro.
-            </p>
-
+          <div className="mx-auto grid max-w-6xl grid-cols-1 gap-10 px-6 md:grid-cols-2 md:items-center">
             <div className="space-y-6">
-              <div className="flex gap-4 items-start">
-                <div className="p-2 bg-[#059669]/10 rounded-lg text-[#059669]">
-                  <Gift className="w-5 h-5" />
-                </div>
-                <div>
-                  <h4 className="font-medium text-[#111827]">Brindes Estratégicos</h4>
-                  <p className="text-sm text-[#6B7280]">Engenharia de valor para aumentar o ticket médio por pedido.</p>
+              <Badge className="w-fit bg-primary/10 text-primary" variant="outline">
+                ⚡ Especialista em Marcas de Atacado no Ramo da Moda
+              </Badge>
+
+              <h1 className="font-heading text-4xl font-extrabold tracking-tight md:text-5xl lg:text-6xl">
+                Faça seu próprio site de vendas em apenas{" "}
+                <span className="text-primary">7 dias</span>
+              </h1>
+
+              <p className="text-lg text-muted-foreground">
+                Transforme seu atendimento pelo WhatsApp em uma operação digital
+                completa. Migre seu catálogo, garanta seus dados e venda no
+                atacado com a plataforma líder do mercado.
+              </p>
+
+              <div className="rounded-xl border bg-card p-4">
+                <div className="flex items-start gap-3">
+                  <div className="mt-0.5 grid size-9 place-items-center rounded-lg bg-secondary text-secondary-foreground">
+                    <Link className="size-4" />
+                  </div>
+                  <div className="text-sm">
+                    <div className="font-semibold">
+                      Representante Oficial Fácilzap no Nordeste
+                    </div>
+                    <div className="text-muted-foreground">
+                      O sistema de catálogo e vendas mais moderno do mercado.
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              <div className="flex gap-4 items-start">
-                <div className="p-2 bg-[#059669]/10 rounded-lg text-[#059669]">
-                  <Calendar className="w-5 h-5" />
-                </div>
-                <div>
-                  <h4 className="font-medium text-[#111827]">Promoções Sazonais</h4>
-                  <p className="text-sm text-[#6B7280]">Campanhas personalizadas montadas para capturar demanda em datas-chave.</p>
-                </div>
+              <div className="flex flex-col gap-3 sm:flex-row">
+                <Button
+                  size="lg"
+                  className="h-auto rounded-full px-7 py-3.5 text-base"
+                  onClick={() => {
+                    document.getElementById("lead-form")?.scrollIntoView({
+                      behavior: "smooth",
+                    })
+                  }}
+                >
+                  Quero Meu Site em 7 Dias <ArrowRight className="ml-1 size-4" />
+                </Button>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="h-auto rounded-full px-7 py-3.5 text-base"
+                  onClick={() =>
+                    openWhatsApp(
+                      "Olá! Quero entender como funciona a implantação do site B2B/atacado em 7 dias."
+                    )
+                  }
+                >
+                  Falar no WhatsApp
+                </Button>
               </div>
 
-              <div className="flex gap-4 items-start">
-                <div className="p-2 bg-[#059669]/10 rounded-lg text-[#059669]">
-                  <RefreshCw className="w-5 h-5" />
+              <div className="grid grid-cols-1 gap-2 text-sm text-muted-foreground sm:grid-cols-3">
+                <div className="flex items-center gap-2">
+                  <span className="grid size-6 place-items-center rounded-full bg-emerald-500/15 text-emerald-600">
+                    🟢
+                  </span>
+                  +100 Clientes Ativos
                 </div>
-                <div>
-                  <h4 className="font-medium text-[#111827]">Sistemas de Cashback</h4>
-                  <p className="text-sm text-[#6B7280]">Retenção automática e estímulo à recompra constante.</p>
+                <div className="flex items-center gap-2">
+                  <span className="grid size-6 place-items-center rounded-full bg-primary/10 text-primary">
+                    ⚡
+                  </span>
+                  Implantação em 1 Semana
                 </div>
-              </div>
-
-              <div className="flex gap-4 items-start">
-                <div className="p-2 bg-[#059669]/10 rounded-lg text-[#059669]">
-                  <Award className="w-5 h-5" />
-                </div>
-                <div>
-                  <h4 className="font-medium text-[#111827]">Treinamentos Ilimitados</h4>
-                  <p className="text-sm text-[#6B7280]">Capacitação contínua para transformar sua equipe em especialistas de vendas.</p>
+                <div className="flex items-center gap-2">
+                  <span className="grid size-6 place-items-center rounded-full bg-secondary text-secondary-foreground">
+                    🔒
+                  </span>
+                  Migração Segura de Dados
                 </div>
               </div>
             </div>
-          </div>
 
-          <div className="bg-[#F3EFEA] p-12 rounded-3xl flex items-center justify-center border border-[#E5E0D8]">
-            <div className="text-center space-y-4">
-              <div className="w-32 h-32 mx-auto rounded-full bg-[#059669]/10 border-2 border-dashed border-[#059669] flex items-center justify-center text-[#059669]">
-                <TrendingUp className="w-16 h-16" />
-              </div>
-              <p className="font-serif text-xl italic text-[#111827]">Vendas Escaláveis & Retenção</p>
+            <div className="relative">
+              <Card className="overflow-hidden">
+                <CardHeader>
+                  <CardTitle className="font-heading">
+                    Visão do catálogo (mockup)
+                  </CardTitle>
+                  <CardDescription>
+                    Catálogo visual, rápido e feito para pedidos de atacado.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="rounded-lg border bg-background p-3">
+                      <div className="h-3 w-16 rounded bg-muted" />
+                      <div className="mt-2 h-5 w-24 rounded bg-muted" />
+                      <div className="mt-3 h-20 rounded-lg bg-muted/60" />
+                    </div>
+                    <div className="rounded-lg border bg-background p-3">
+                      <div className="h-3 w-16 rounded bg-muted" />
+                      <div className="mt-2 h-5 w-24 rounded bg-muted" />
+                      <div className="mt-3 h-20 rounded-lg bg-muted/60" />
+                    </div>
+                    <div className="col-span-2 rounded-lg border bg-background p-3">
+                      <div className="flex items-center justify-between">
+                        <div className="h-3 w-20 rounded bg-muted" />
+                        <Badge variant="secondary">Pedido mínimo</Badge>
+                      </div>
+                      <div className="mt-3 grid grid-cols-3 gap-2">
+                        <div className="h-14 rounded-lg bg-muted/60" />
+                        <div className="h-14 rounded-lg bg-muted/60" />
+                        <div className="h-14 rounded-lg bg-muted/60" />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="rounded-lg border bg-secondary/50 p-4 text-sm">
+                    <div className="flex items-start gap-3">
+                      <div className="mt-0.5 grid size-9 place-items-center rounded-lg bg-primary text-primary-foreground shadow-sm">
+                        <MessageSquare className="size-4" />
+                      </div>
+                      <div>
+                        <div className="font-semibold">
+                          Atendimento vira pedido organizado
+                        </div>
+                        <div className="text-muted-foreground">
+                          WhatsApp + site B2B = menos retrabalho e mais escala.
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Call to Action Final */}
-      <section className="py-24 px-6 bg-[#111827] text-white text-center">
-        <div className="max-w-4xl mx-auto space-y-6">
-          <h2 className="text-4xl md:text-6xl font-serif font-light">
-            Vamos digitalizar seu sucesso!
-          </h2>
-          <p className="text-gray-400 text-lg">
-            Facilzap — Praticidade e Tecnologia para o seu Negócio. Escolha seu plano e inicie seu Setup hoje.
-          </p>
-          <div className="pt-4">
+        <section id="parceria" className="border-t py-16">
+          <div className="mx-auto max-w-6xl px-6">
+            <div className="mx-auto max-w-3xl text-center">
+              <h2 className="font-heading text-3xl font-bold tracking-tight md:text-4xl">
+                A tecnologia do Fácilzap com a implementação especializada no
+                Nordeste.
+              </h2>
+              <p className="mt-4 text-muted-foreground">
+                Unimos a melhor ferramenta de catálogo digital e checkout do
+                Brasil ao acompanhamento técnico de quem entende a rotina e as
+                particularidades do polo têxtil e do atacado de moda.
+              </p>
+            </div>
+
+            <div className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-3">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="font-heading text-base">
+                    Sua Marca
+                  </CardTitle>
+                  <CardDescription>
+                    Identidade, público, preço e estratégia.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="text-sm text-muted-foreground">
+                  Layout e catálogo com o rosto da sua confecção, pronto para
+                  revendedores comprarem.
+                </CardContent>
+              </Card>
+
+              <Card className="border-primary/40">
+                <CardHeader>
+                  <CardTitle className="font-heading text-base">Fácilzap</CardTitle>
+                  <CardDescription>Catálogo + checkout para atacado.</CardDescription>
+                </CardHeader>
+                <CardContent className="text-sm text-muted-foreground">
+                  Controle de produtos, variações, estoque e pedidos com uma
+                  experiência moderna para o comprador.
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between gap-3">
+                    <CardTitle className="font-heading text-base">
+                      Representante Oficial
+                    </CardTitle>
+                    <Badge variant="secondary">Nordeste</Badge>
+                  </div>
+                  <CardDescription>Implantação e acompanhamento.</CardDescription>
+                </CardHeader>
+                <CardContent className="text-sm text-muted-foreground">
+                  Setup guiado, migração segura e treinamento do time comercial
+                  para operar a rotina de pedidos sem travar vendas.
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </section>
+
+        <section id="beneficios" className="border-t py-16">
+          <div className="mx-auto max-w-6xl px-6">
+            <div className="mx-auto max-w-3xl text-center">
+              <h2 className="font-heading text-3xl font-bold tracking-tight md:text-4xl">
+                Benefícios e diferenciais competitivos
+              </h2>
+              <p className="mt-4 text-muted-foreground">
+                Tudo pensado para atacado de moda: velocidade, segurança e
+                operação no dia a dia.
+              </p>
+            </div>
+
+            <div className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-2">
+              <Card>
+                <CardHeader>
+                  <div className="flex items-start gap-3">
+                    <div className="mt-0.5 grid size-10 place-items-center rounded-xl bg-primary/10 text-primary">
+                      <RefreshCw className="size-5" />
+                    </div>
+                    <div>
+                      <CardTitle className="font-heading">
+                        Migração Expressa
+                      </CardTitle>
+                      <CardDescription>
+                        Transferência rápida de sistema.
+                      </CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="text-sm text-muted-foreground">
+                  Importamos seu catálogo atual garantindo controle de estoque,
+                  códigos de barras e tabela de preços sem interrupção nas
+                  vendas.
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <div className="flex items-start gap-3">
+                    <div className="mt-0.5 grid size-10 place-items-center rounded-xl bg-primary/10 text-primary">
+                      <Check className="size-5" />
+                    </div>
+                    <div>
+                      <CardTitle className="font-heading">
+                        Foco em Moda Têxtil
+                      </CardTitle>
+                      <CardDescription>Especialização em atacado.</CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="text-sm text-muted-foreground">
+                  Estrutura otimizada para grades de cores, tamanhos, pedidos
+                  mínimos e condições diferenciadas para revendedores.
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <div className="flex items-start gap-3">
+                    <div className="mt-0.5 grid size-10 place-items-center rounded-xl bg-primary/10 text-primary">
+                      <MessageSquare className="size-5" />
+                    </div>
+                    <div>
+                      <CardTitle className="font-heading">Suporte Ativo</CardTitle>
+                      <CardDescription>
+                        Acompanhamento de ponta a ponta.
+                      </CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="text-sm text-muted-foreground">
+                  Treinamento prático da sua equipe e suporte dedicado do
+                  primeiro clique até a implantação final do site.
+                </CardContent>
+              </Card>
+
+              <Card className="border-primary/40">
+                <CardHeader>
+                  <div className="flex items-start gap-3">
+                    <div className="mt-0.5 grid size-10 place-items-center rounded-xl bg-primary text-primary-foreground">
+                      <Calendar className="size-5" />
+                    </div>
+                    <div>
+                      <CardTitle className="font-heading">Agilidade Real</CardTitle>
+                      <CardDescription>Pronto em 7 dias.</CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="text-sm text-muted-foreground">
+                  Metodologia de configuração acelerada para colocarmos sua loja
+                  no ar em apenas uma semana.
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </section>
+
+        <section id="prova-social" className="border-t py-16">
+          <div className="mx-auto max-w-6xl px-6">
+            <div className="grid grid-cols-1 gap-10 md:grid-cols-2 md:items-start">
+              <div className="space-y-4">
+                <h2 className="font-heading text-3xl font-bold tracking-tight md:text-4xl">
+                  Escolhido por quem move o atacado de moda.
+                </h2>
+                <p className="text-muted-foreground">
+                  +100 marcas e confecções ativas vendendo diariamente com nossa
+                  solução.
+                </p>
+                <div className="grid grid-cols-2 gap-4">
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="font-heading text-3xl">
+                        +100
+                      </CardTitle>
+                      <CardDescription>Clientes ativos</CardDescription>
+                    </CardHeader>
+                  </Card>
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="font-heading text-3xl">
+                        7 dias
+                      </CardTitle>
+                      <CardDescription>Implantação</CardDescription>
+                    </CardHeader>
+                  </Card>
+                </div>
+
+                <div className="rounded-xl border bg-secondary/50 p-4 text-sm text-muted-foreground">
+                  Carrossel de marcas e depoimentos pode ser conectado aqui
+                  depois (logotipos reais e vídeos curtos).
+                </div>
+              </div>
+
+              <div className="grid gap-4">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="font-heading text-base">
+                      “A migração foi rápida e o pedido ficou mais organizado.”
+                    </CardTitle>
+                    <CardDescription>Marca de moda feminina (CE)</CardDescription>
+                  </CardHeader>
+                </Card>
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="font-heading text-base">
+                      “Parou o retrabalho no WhatsApp e ganhamos tempo no
+                      fechamento.”
+                    </CardTitle>
+                    <CardDescription>Confecção jeanswear (PE)</CardDescription>
+                  </CardHeader>
+                </Card>
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="font-heading text-base">
+                      “O catálogo visual ajudou muito os revendedores.”
+                    </CardTitle>
+                    <CardDescription>Moda infantil (RN)</CardDescription>
+                  </CardHeader>
+                </Card>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="como-funciona" className="border-t py-16">
+          <div className="mx-auto max-w-6xl px-6">
+            <div className="mx-auto max-w-3xl text-center">
+              <h2 className="font-heading text-3xl font-bold tracking-tight md:text-4xl">
+                Como funciona a implantação (passo a passo)
+              </h2>
+              <p className="mt-4 text-muted-foreground">
+                Processo direto, com acompanhamento, para colocar sua operação
+                no ar com segurança.
+              </p>
+            </div>
+
+            <div className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="font-heading text-base">
+                    1. Diagnóstico & envio de dados
+                  </CardTitle>
+                  <CardDescription>
+                    Mapeamos catálogo, estoque e tabela de preços atual.
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+              <Card className="border-primary/40">
+                <CardHeader>
+                  <CardTitle className="font-heading text-base">
+                    2. Migração & configuração
+                  </CardTitle>
+                  <CardDescription>
+                    Transferimos estoque e ajustamos a identidade em até 7 dias.
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="font-heading text-base">
+                    3. Treinamento da equipe
+                  </CardTitle>
+                  <CardDescription>
+                    Capacitamos o time comercial para operar pedidos com
+                    facilidade.
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="font-heading text-base">
+                    4. Lançamento oficial
+                  </CardTitle>
+                  <CardDescription>
+                    Site no ar, pronto para pedidos B2B, com suporte contínuo.
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+            </div>
+          </div>
+        </section>
+
+        <section className="border-t py-16">
+          <div className="mx-auto max-w-6xl px-6">
+            <div className="grid grid-cols-1 gap-10 md:grid-cols-2 md:items-start">
+              <div className="space-y-4">
+                <h2 className="font-heading text-3xl font-bold tracking-tight md:text-4xl">
+                  Solicite uma Demonstração e Garanta seu Site em 7 Dias
+                </h2>
+                <p className="text-muted-foreground">
+                  Preencha os dados da sua confecção ou marca para falarmos com
+                  um especialista em atacado de moda.
+                </p>
+                <div className="rounded-xl border bg-secondary/50 p-4 text-sm text-muted-foreground">
+                  Seus dados estão seguros. Entraremos em contato via WhatsApp
+                  em até 2 horas úteis.
+                </div>
+              </div>
+
+              <Card id="lead-form">
+                <CardHeader>
+                  <CardTitle className="font-heading">Formulário</CardTitle>
+                  <CardDescription>
+                    Campos marcados com * são obrigatórios.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <form className="space-y-4" onSubmit={submit}>
+                    <div className="space-y-2">
+                      <Label htmlFor="responsavel">Nome do Responsável *</Label>
+                      <Input
+                        id="responsavel"
+                        value={responsavel}
+                        onChange={(e) => setResponsavel(e.target.value)}
+                        placeholder="Seu nome"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="marca">Nome da Marca / Confecção *</Label>
+                      <Input
+                        id="marca"
+                        value={marca}
+                        onChange={(e) => setMarca(e.target.value)}
+                        placeholder="Ex: Confecções Silva"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="whatsapp">WhatsApp / Telefone *</Label>
+                      <Input
+                        id="whatsapp"
+                        inputMode="tel"
+                        value={whatsapp}
+                        onChange={(e) =>
+                          setWhatsapp(formatTelefoneBR(e.target.value))
+                        }
+                        placeholder="(00) 00000-0000"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="instagram">Instagram da Marca</Label>
+                      <Input
+                        id="instagram"
+                        value={instagram}
+                        onChange={(e) => setInstagram(e.target.value)}
+                        placeholder="@sua_marca"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="segmento">Segmento Principal *</Label>
+                      <Select
+                        id="segmento"
+                        value={segmento}
+                        onChange={(e) =>
+                          setSegmento(e.target.value as Segmento)
+                        }
+                      >
+                        <option value="">Selecione</option>
+                        <option value="Moda Feminina">Moda Feminina</option>
+                        <option value="Moda Masculina">Moda Masculina</option>
+                        <option value="Moda Infantil">Moda Infantil</option>
+                        <option value="Jeanswear">Jeanswear</option>
+                        <option value="Moda Praia/Fitness">
+                          Moda Praia/Fitness
+                        </option>
+                        <option value="Outros">Outros</option>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Já possui sistema ou site atual? *</Label>
+                      <div className="grid gap-2">
+                        <label className="flex items-start gap-3 rounded-lg border bg-background p-3 text-sm">
+                          <input
+                            type="radio"
+                            name="migracao"
+                            className="mt-1"
+                            checked={migracao === "Sim, quero migrar"}
+                            onChange={() => setMigracao("Sim, quero migrar")}
+                          />
+                          <span>Sim, quero migrar</span>
+                        </label>
+                        <label className="flex items-start gap-3 rounded-lg border bg-background p-3 text-sm">
+                          <input
+                            type="radio"
+                            name="migracao"
+                            className="mt-1"
+                            checked={migracao === "Não, será o primeiro site"}
+                            onChange={() =>
+                              setMigracao("Não, será o primeiro site")
+                            }
+                          />
+                          <span>Não, será o primeiro site</span>
+                        </label>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="observacoes">Observações</Label>
+                      <Textarea
+                        id="observacoes"
+                        value={observacoes}
+                        onChange={(e) => setObservacoes(e.target.value)}
+                        placeholder="Ex: grade por tamanho, pedido mínimo, condições para revendedor..."
+                      />
+                    </div>
+
+                    {formError ? (
+                      <div className="rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
+                        {formError}
+                      </div>
+                    ) : null}
+
+                    {formSuccess ? (
+                      <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-3 text-sm text-emerald-700 dark:text-emerald-300">
+                        Enviado. Abrimos o WhatsApp para você confirmar a
+                        mensagem.
+                      </div>
+                    ) : null}
+
+                    <Button
+                      size="lg"
+                      className="h-auto w-full rounded-full py-3.5 text-base"
+                      type="submit"
+                    >
+                      QUERO MEU SITE EM 7 DIAS
+                    </Button>
+                  </form>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer className="border-t py-10">
+        <div className="mx-auto grid max-w-6xl grid-cols-1 gap-8 px-6 md:grid-cols-3">
+          <div className="space-y-2">
+            <div className="font-heading text-base font-bold">
+              Representante Autorizado Fácilzap no Nordeste
+            </div>
+            <div className="text-sm text-muted-foreground">
+              Razão Social: Sua Empresa LTDA
+              <br />
+              CNPJ: 00.000.000/0001-00
+              <br />
+              Cidade/UF: Fortaleza/CE
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <div className="font-semibold">Links rápidos</div>
+            <div className="flex flex-col items-start gap-2 text-sm">
+              <Button
+                variant="link"
+                className="h-auto p-0 text-muted-foreground"
+                onClick={() => openWhatsApp("Olá! Quero suporte via WhatsApp.")}
+              >
+                Suporte via WhatsApp
+              </Button>
+              <a className="text-muted-foreground hover:text-foreground" href="#">
+                Política de Privacidade
+              </a>
+              <a className="text-muted-foreground hover:text-foreground" href="#">
+                Termos de Uso
+              </a>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <div className="font-semibold">Atalho</div>
             <Button
-              className="h-auto rounded-full bg-[#059669] px-8 py-4 text-lg font-medium text-white shadow-lg hover:bg-[#047857]"
-              onClick={() => openWhatsApp("Olá! Quero falar com um consultor sobre a Facilzap.")}
+              variant="outline"
+              className="h-auto w-fit rounded-full px-5 py-2.5"
+              onClick={() => {
+                document.getElementById("lead-form")?.scrollIntoView({
+                  behavior: "smooth",
+                })
+              }}
             >
-              Falar com Consultor Agora <ArrowRight className="w-5 h-5" />
+              Solicitar demonstração <ArrowRight className="ml-1 size-4" />
             </Button>
           </div>
         </div>
-      </section>
 
-      {/* Footer */}
-      <footer className="py-8 border-t border-[#E5E0D8] text-center text-xs text-[#6B7280]">
-        <p>© {new Date().getFullYear()} Facilzap. Todos os direitos reservados.</p>
+        <div className="mx-auto mt-10 max-w-6xl px-6 text-xs text-muted-foreground">
+          © {new Date().getFullYear()} — Todos os direitos reservados.
+        </div>
       </footer>
     </div>
-  );
+  )
 }
